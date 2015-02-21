@@ -3,7 +3,7 @@ namespace Kubexia\Theme;
 
 class Package{
     
-    public $tpl;
+    public $package;
     
     protected $viewsDir = array();
     
@@ -33,7 +33,7 @@ class Package{
         
         $this->parentTheme = $parentTheme;
         
-        $this->tpl = $this;
+        $this->package = $this;
     }
     
     public function __set($name, $value) {
