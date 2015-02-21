@@ -1,5 +1,5 @@
 <?php
-namespace Kubexia\Database;
+namespace Kubexia\Database\Doctrine;
 
 class Model{
     
@@ -22,7 +22,7 @@ class Model{
      * @return \Doctrine\ORM\EntityManager
      */
     private function db(){
-        return $this->app()->config('entityManager');
+        return \Kubexia\Database\Doctrine\Handler::getInstance()->getConnection();
     }
     
     public function __set($name, $value) {
@@ -39,6 +39,7 @@ class Model{
      */
     public static function model(){
         $className = get_called_class();
+        
         if(!isset(static::$model[$className])){
             static::$model[$className] = new $className();
         }

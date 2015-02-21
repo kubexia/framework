@@ -23,20 +23,25 @@ class Package{
         if (class_exists($className, FALSE)){
             return FALSE;
         }
-
-        $array = explode('\\',$className);
-        $location = array_shift($array);
         
-        $package = array_shift($array);
-        if(in_array($package, array_keys(static::$packages))){
+        $array = explode('\\',$className);
+        $packageType = array_shift($array);
+        
+        $filename = NULL;
+        $packageName = array_shift($array);
+        
+        if(isset(static::$packages[$packageType]) && in_array($packageName, array_keys(static::$packages[$packageType]))){
             $dir = strtolower(array_shift($array));
-            
-            $mod = static::getStatic($package);
+            $mod = static::getStatic($packageType,$packageName);
             $filename = $mod['path'].'/'.$dir.'/'.join('/',$array);
         }
-
+        
+        if(is_null($filename)){
+            return FALSE;
+        }
+        
         $filename = $filename.'.php';
-
+        
         if(file_exists($filename)){
             include $filename;
         }
@@ -45,25 +50,50 @@ class Package{
         }
     }
     
-    public function register($name,$options){
-        static::$packages[$name] = $options;
+    public function register($type,$name,$options){
+        static::$packages[$type][$name] = $options;
     }
     
     public function getAll(){
         return static::$packages;
     }
     
-    public static function getStatic($name){
-        return (isset(static::$packages[$name]) ? static::$packages[$name] : FALSE);
+    public static function getStatic($type,$name){
+        return (isset(static::$packages[$type][$name]) ? static::$packages[$type][$name] : FALSE);
     }
     
-    public function get($name){
+    public static function getStaticLower($type,$name){
+        $packages = static::$packages;
+        
+        $pName = NULL;
+        $pType = NULL;
+        foreach($packages as $packageType => $items){
+            if(strtolower($packageType) === $type){
+                $pType = $packageType;
+                
+                foreach($items as $packageName => $value){
+                    if(strtolower($packageName) === $name){
+                        $pName = $packageName;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if(is_null($pName) || is_null($pType)){
+            return FALSE;
+        }
+        
+        return self::getStatic($pType, $pName);
+    }
+    
+    public function get($type,$name){
         $packages = $this->getAll();
-        return (isset($packages[$name]) ? $packages[$name] : FALSE);
+        return (isset($packages[$type][$name]) ? $packages[$type][$name] : FALSE);
     }
     
-    public static function exists($name){
-        return (isset(static::$packages[$name]) ? TRUE : FALSE);
+    public static function exists($type,$name){
+        return (isset(static::$packages[$type][$name]) ? TRUE : FALSE);
     }
     
     
