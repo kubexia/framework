@@ -26,7 +26,7 @@ class I18n{
         return static::$instance[$name] = new I18n();
     }
     
-    public function fetch($package='app',$string,$name,$lang){
+    public function fetch($package=NULL,$string,$name,$lang){
         if($lang === NULL){
             $lang = $this->getLanguage();
         }
@@ -63,6 +63,11 @@ class I18n{
             if(preg_match('#@([a-zA-Z0-9]+):([a-zA-Z0-9]+)#', $package, $m)){
                 $mod = \Kubexia\Package::getInstance()->get($m[1],$m[2]);
                 $filename = $mod['path'].'/translations/'.$lang.'/'.$name.'.json';
+            }
+            else{
+                if($package === 'system'){
+                    $filename = SYS.'/translations/'.$lang.'/'.$name.'.json';
+                }
             }
         }
         else{

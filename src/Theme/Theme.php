@@ -48,6 +48,10 @@ class Theme{
         return static::$vars;
     }
     
+    public function translate($name,$file='main',$replacement=array(),$lang=NULL){
+        return __(NULL,$name,$file,$replacement,$lang);
+    }
+    
     /**
      * 
      * @param type $template
@@ -396,11 +400,18 @@ class Theme{
             return static::$packages[$type][$name];
         }
         
-        $package = new \Kubexia\Theme\Package($this, $type, $name);
+        $package = \Kubexia\Package::getStatic($type, $name);
+        if(!$package){
+            return NULL;
+        }
         
-        static::$packages[$type][$name] = $package;
+        $template = new \Kubexia\Theme\Package($this, $type, $name);
         
-        return $package;
+        $template->setConfigs($package);
+        
+        static::$packages[$type][$name] = $template;
+        
+        return $template;
     }
 }
 ?>

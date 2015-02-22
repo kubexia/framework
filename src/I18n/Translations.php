@@ -9,6 +9,8 @@ class Translations{
     
     protected static $translationsCache = array();
     
+    protected $pattern = "#{([a-zA-Z0-9_>-@:/]+)}#";
+    
     public function __construct(\Kubexia\I18n\I18n $i18n, $translations = array()){
         $this->i18n = $i18n;
         
@@ -20,7 +22,7 @@ class Translations{
         $translation = (isset($this->translations->{$name}) ? $this->translations->{$name} : $name);
         
         if(is_string($translation)){
-            if(preg_match("#{([a-zA-Z0-9_>-]+)}#", $translation)){
+            if(preg_match($this->pattern, $translation)){
                 $translation = $this->findReplacement($translation);
             }
         }
@@ -49,20 +51,27 @@ class Translations{
     }
     
     public function findReplacement($translation){
-        preg_match_all("#{([a-zA-Z0-9_>-]+)}#", $translation, $match);
+        preg_match_all($this->pattern, $translation, $match);
         
         $cache = $this->getTranslationsCache();
         $replacement = array();
         if(!empty($match[1])){
-            
             foreach($match[1] as $key => $item){
-                $found = $this->string($cache, $item);
-                if($found !== NULL){
-                    $found = $this->findReplacement($found);
-                    $replacement[$item] = $found;
+                if(preg_match("#@([a-zA-Z0-9:]+)(?:([a-zA-Z0-9/]+)?):(.*)#",$item,$m)){
+                    if(preg_match("#:#", $m[1])){
+                        $m[1] = '@'.$m[1];
+                    }
+                    $replacement[$item] = $this->i18n->translate(($m[1] === 'app' ? NULL : $m[1]), $m[3], (strlen($m[2]) > 0 ? ltrim($m[2],'/') : 'main'));
                 }
                 else{
-                    $replacement[$item] = $this->findReplacementValue($this->{$item}, $cache);
+                    $found = $this->string($cache, $item);
+                    if($found !== NULL){
+                        $found = $this->findReplacement($found);
+                        $replacement[$item] = $found;
+                    }
+                    else{
+                        $replacement[$item] = $this->findReplacementValue($this->{$item}, $cache);
+                    }
                 }
             }
         }

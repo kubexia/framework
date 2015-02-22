@@ -5,6 +5,8 @@ class Package{
     
     public $package;
     
+    public $configs = array();
+    
     protected $viewsDir = array();
     
     protected static $vars = array();
@@ -50,6 +52,18 @@ class Package{
     
     public function getVars(){
         return array_merge(static::$vars,$this->parentTheme->getVars(), get_object_vars($this));
+    }
+    
+    public function setConfigs(array $array = array()){
+        $this->configs = array_merge($this->configs,$array);
+    }
+    
+    public function getConfig($name=NULL){
+        return (!is_null($name) && isset($this->configs[$name]) ? $this->configs[$name] : $this->configs);
+    }
+    
+    public function translate($name,$file='main',$replacement=array(),$lang=NULL){
+        return __('@'.$this->packageType.':'.$this->packageName,$name,$file,$replacement,$lang);
     }
 
     public function render($template = '', $fullpath = FALSE, $ext = '.php') {
