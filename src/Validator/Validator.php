@@ -79,11 +79,11 @@ class Validator{
         $this->setLanguage($language);
         $this->setFilename($filename);
         
-        $translation = $this->i18n->load($package,$this->getLanguage(),$this->getFilename());
+        $translations = $this->i18n->load($package,$this->getLanguage(),$this->getFilename());
         
-        $this->translations = $translation;
+        $this->translations = $translations;
         
-        $this->attributes = $translation->attributes;
+        $this->attributes = $translations->attributes;
         
         $this->validations = new \Kubexia\Validator\Validations($this->getItems());
         
@@ -133,10 +133,10 @@ class Validator{
     public function addError($item, $code, $options=array()){
         $bind = (isset($options['bind']) ? $options['bind'] : array());
         
-        $message = $this->translations->translate($item.':'.$code);
-        if($message === $item.':'.$code && !empty($this->attributes)){
+        $message = $this->i18n->translate($this->package, $item.'_'.$code);
+        if($message === $item.'_'.$code && !empty($this->attributes)){
             $replacements = array_merge($bind,array('attribute' => $this->translations->attributes->{$item}));
-            $message = $this->translations->translate($code,$replacements);
+            $message = $this->i18n->translate($this->package,$code,$this->getFilename(),$replacements);
         }
         
         $this->errors[$item] = array(

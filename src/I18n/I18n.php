@@ -38,17 +38,21 @@ class I18n{
             $translation = $this->load($package,$this->defaultLanguage,$name);
         }
         
-        return $translation->{$string};
+        return (isset($translation->{$string}) ? $translation->{$string} : $string);
     }
     
     public function load($package,$lang,$name){
-        if (isset(static::$cache[$package][$lang][$name])) {
-            return static::$cache[$package][$lang][$name];
+        $cachePackage = $package;
+        if(is_null($cachePackage)){
+            $cachePackage = 'app';
+        }
+        if (isset(static::$cache[$cachePackage][$lang][$name])) {
+            return static::$cache[$cachePackage][$lang][$name];
         }
         
         $translations = $this->fetchTranslations($package,$lang,$name);
         
-        return ($translations !== FALSE) ? static::$cache[$package][$lang][$name] = $translations : FALSE;
+        return ($translations !== FALSE) ? static::$cache[$cachePackage][$lang][$name] = $translations : FALSE;
     }
     
     public function fetchTranslations($package,$lang,$name=NULL){
@@ -60,13 +64,16 @@ class I18n{
         
         $filename = NULL;
         if(!is_null($package)){
-            if(preg_match('#@([a-zA-Z0-9]+):([a-zA-Z0-9]+)#', $package, $m)){
-                $mod = \Kubexia\Package::getInstance()->get($m[1],$m[2]);
-                $filename = $mod['path'].'/translations/'.$lang.'/'.$name.'.json';
+            if($package === 'system'){
+                $filename = SYS.'/translations/'.$lang.'/'.$name.'.json';
+            }
+            elseif($package === 'app'){
+                $filename = APP.'/translations/'.$lang.'/'.$name.'.json';
             }
             else{
-                if($package === 'system'){
-                    $filename = SYS.'/translations/'.$lang.'/'.$name.'.json';
+                if(preg_match('#@([a-zA-Z0-9]+):([a-zA-Z0-9]+)#', $package, $m)){
+                    $mod = \Kubexia\Package::getInstance()->get($m[1],$m[2]);
+                    $filename = $mod['path'].'/translations/'.$lang.'/'.$name.'.json';
                 }
             }
         }
@@ -79,13 +86,7 @@ class I18n{
         }
         
         if(file_exists($filename)){
-            $contents = file_get_contents($filename);
-            $translations = json_decode($contents);
-            
-            $obj = new \Kubexia\I18n\Translations($this, $translations);
-            $obj->setTranslationsCache($translations);
-            
-            return $obj;
+            return json_decode(file_get_contents($filename));
         }
         
         return FALSE;
@@ -115,10 +116,6 @@ class I18n{
     
     public function translate($package,$string,$file='main',$replacement=array(),$lang=NULL){
         $translation = $this->fetch($package,$string,$file,$lang);
-        if(!is_string($translation)){
-            return new \Kubexia\I18n\Translations($this,$translation);
-        }
-        
         $string = html_entity_decode($translation, ENT_QUOTES, 'UTF-8');
         return empty($replacement) ? $string : strtr($string, $this->prepareReplacement($replacement));
     }
@@ -134,6 +131,14 @@ class I18n{
     
     public function getCache(){
         return static::$cache;
+    }
+    
+    public function getTranslationFile($package,$lang,$name){
+        $translations = $this->load($package, $lang, $name);
+        if(!$translations){
+            $translations = $this->load($package, $this->getDefaultLanguage(), $name);
+        }
+        return $translations;
     }
     
 }
