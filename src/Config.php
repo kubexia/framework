@@ -16,6 +16,11 @@ class Config{
         $this->configs = include $filename;
     }
     
+    /**
+     * 
+     * @param type $name
+     * @return \Kubexia\Config
+     */
     public static function getInstance($name){
         if(isset(static::$instances[$name])){
             return static::$instances[$name];

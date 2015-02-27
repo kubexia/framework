@@ -80,7 +80,9 @@ class Validator{
         $this->setFilename($filename);
         
         $translations = $this->i18n->load($package,$this->getLanguage(),$this->getFilename());
-        
+        if(!$translations){
+            return FALSE;
+        }
         $this->translations = $translations;
         
         $this->attributes = $translations->attributes;

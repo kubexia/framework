@@ -25,8 +25,8 @@ class PackageLoader{
     protected function setPackage($packageClass){
         $array = explode('\\',$packageClass);
         
-        $packageType = array_shift($array);
-        $packageName = array_shift($array);
+        $packageType = strtolower(array_shift($array));
+        $packageName = strtolower(array_shift($array));
         
         $package = \Kubexia\Package::getStatic($packageType,$packageName);
         if($package){
@@ -38,8 +38,8 @@ class PackageLoader{
     
     protected function setCustomPackage($customPackage){
         $array = explode('\\',$customPackage);
-        $packageType = (isset($array[0]) ? $array[0] : NULL);
-        $packageName = (isset($array[1]) ? $array[1] : NULL);
+        $packageType = (isset($array[0]) ? strtolower($array[0]) : NULL);
+        $packageName = (isset($array[1]) ? strtolower($array[1]) : NULL);
         
         $package = \Kubexia\Package::getStatic($packageType,$packageName);
         if($package){
@@ -57,6 +57,10 @@ class PackageLoader{
 
     public function translate(){
         return call_user_func_array(array($this->i18n,'translate'), array_merge(array('@'.$this->packageType.':'.$this->packageName),func_get_args()));
+    }
+    
+    public function ns(){
+        return '@'.$this->packageType.':'.$this->packageName;
     }
     
 }

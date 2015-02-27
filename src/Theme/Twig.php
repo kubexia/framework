@@ -9,6 +9,10 @@ class Twig{
     
     public $loader;
     
+    /**
+     *
+     * @var \Twig_Environment 
+     */
     protected $env;
     
     protected static $themes = array();
@@ -81,7 +85,7 @@ class Twig{
             foreach($items as $name => $configs){
                 $filename = $configs['path'].'/theme';
                 if(file_exists($filename)){
-                    $this->loader->addPath($filename, strtolower($type.':'.$name));
+                    $this->loader->addPath($filename, $type.':'.$name);
                 }
             }
         }

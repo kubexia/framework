@@ -13,11 +13,28 @@ class Handler {
             $server = $name;
         }
         
+        $isDev = ($server === 'test' ? TRUE : FALSE);
+        
         $db = \Kubexia\Config::getInstance('database')->get($server);
-
-        $config = \Doctrine\ORM\Tools\Setup::createAnnotationMetadataConfiguration(array(
-            APP.'/model'
-        ), false);
+        
+        $modelDirs = array(
+            APP.'/model',
+            SYS.'/model'
+        );
+        
+        foreach(\Kubexia\Package::getInstance()->getAll() as $type => $items){
+            foreach($items as $item){
+                $filename = $item['path'].'/model';
+                if(file_exists($filename)){
+                    $modelDirs[] = $filename;
+                }
+            }
+        }
+        
+        $config = \Doctrine\ORM\Tools\Setup::createAnnotationMetadataConfiguration($modelDirs, $isDev);
+        
+        $config->setProxyDir(SYS_STORAGE.'/doctrine_proxy');
+        $config->setAutoGenerateProxyClasses($isDev);
         
         $this->entityManager = \Doctrine\ORM\EntityManager::create(array(
             'driver'   => $db['driver'],

@@ -1,5 +1,5 @@
 <?php
-namespace Kubexia;
+namespace Kubexia\Session;
 
 class Session{
     
@@ -34,11 +34,15 @@ class Session{
     }
     
     public function set($key,$value){
-        $_SESSION[$key] = $this->encrypt->encode($value);
+        if(is_array($value)){
+            $value = json_encode($value);
+        }
+        
+        return $_SESSION[$key] = $this->encrypt->encode($value);
     }
     
     public function get($key){
-        return (isset($_SESSION[$key]) ? $this->encrypt->decode($_SESSION[$key]) : NULL);
+        return (isset($_SESSION[$key]) ? json_decode($this->encrypt->decode($_SESSION[$key])) : NULL);
     }
     
     public function destroy($name){
