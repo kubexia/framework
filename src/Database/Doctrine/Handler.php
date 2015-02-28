@@ -8,14 +8,15 @@ class Handler {
     protected static $instance = array();
     
     public function __construct($name=NULL){
-        $server = (in_array($_SERVER['REMOTE_ADDR'],array('127.0.0.1','::1')) ? 'test' : 'production');
+        $server = (in_array($_SERVER['REMOTE_ADDR'],array('127.0.0.1','::1')) ? 'development' : 'production');
         if(!is_null($name)){
             $server = $name;
         }
         
-        $isDev = ($server === 'test' ? TRUE : FALSE);
+        $appConfig = \Kubexia\Config::getInstance('configs');
+        $isDev = ($appConfig->get('environment') === 'development' ? TRUE : FALSE);
         
-        $db = \Kubexia\Config::getInstance('database')->get($server);
+        $db = \Kubexia\Config::getInstance('database')->get($appConfig->get('environment'));
         
         $modelDirs = array(
             APP.'/model',
@@ -35,6 +36,9 @@ class Handler {
         
         $config->setProxyDir(SYS_STORAGE.'/doctrine_proxy');
         $config->setAutoGenerateProxyClasses($isDev);
+        if($isDev){
+            $config->setSQLLogger(new \Kubexia\Database\Doctrine\Debugger());
+        }
         
         $this->entityManager = \Doctrine\ORM\EntityManager::create(array(
             'driver'   => $db['driver'],

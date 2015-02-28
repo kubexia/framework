@@ -9,6 +9,8 @@ abstract class ActiveEntity{
     
     protected static $data = array();
     
+    protected static $repos = array();
+    
     protected static function getInstance(){
         $className = get_called_class();
         if(isset(static::$entity[$className])){
@@ -162,6 +164,17 @@ abstract class ActiveEntity{
      */
     public static function __callStatic($method, $arguments) {
         return call_user_func_array(array(static::getEntityManager()->getRepository(get_called_class()), $method), $arguments);
+    }
+    
+    public function repo(){
+        $repositoryClass = get_called_class();
+        if(isset(static::$repos[$repositoryClass])){
+            return static::$repos[$repositoryClass];
+        }
+        
+        static::$repos[$repositoryClass] = $this->getEntityManager()->getRepository($repositoryClass);
+        
+        return static::$repos[$repositoryClass];
     }
 
 }

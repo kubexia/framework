@@ -96,6 +96,8 @@ class Twig{
         $this->env->addFunction(new \Twig_SimpleFunction('translate', array(\Kubexia\I18n\I18n::getInstance(),'translate')));
         $this->env->addFunction(new \Twig_SimpleFunction('urlFor', 'urlFor'));
         $this->env->addFunction(new \Twig_SimpleFunction('urlOutFor', 'urlOutFor'));
+        $this->env->addFunction(new \Twig_SimpleFunction('getMemoryUsage', 'getMemoryUsage'));
+        $this->env->addFunction(new \Twig_SimpleFunction('getExecutionTime', 'getExecutionTime'));
     }
     
     public function add($name,$value=NULL){
@@ -111,6 +113,7 @@ class Twig{
     }
     
     public function display($name,$context=array()){
+        $this->append('debugQueries', \Kubexia\Database\Doctrine\Debugger::getInstance()->queries());
         return $this->env->display($name, array_merge(static::$vars,$context));
     }
     

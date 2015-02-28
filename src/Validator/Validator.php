@@ -137,7 +137,8 @@ class Validator{
         
         $message = $this->i18n->translate($this->package, $item.'_'.$code);
         if($message === $item.'_'.$code && !empty($this->attributes)){
-            $replacements = array_merge($bind,array('attribute' => $this->translations->attributes->{$item}));
+            $attribute = (isset($this->translations->attributes->{$item}) ? $this->translations->attributes->{$item} : 'attribute:'.$item);
+            $replacements = array_merge($bind,array('attribute' => $attribute));
             $message = $this->i18n->translate($this->package,$code,$this->getFilename(),$replacements);
         }
         

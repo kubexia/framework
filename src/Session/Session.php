@@ -42,7 +42,18 @@ class Session{
     }
     
     public function get($key){
-        return (isset($_SESSION[$key]) ? json_decode($this->encrypt->decode($_SESSION[$key])) : NULL);
+        if(!isset($_SESSION[$key])){
+            return NULL;
+        }
+        
+        $decoded = $this->encrypt->decode($_SESSION[$key]);
+        
+        $jsonDecoded = json_decode($decoded);
+        if($jsonDecoded !== NULL){
+            return $jsonDecoded;
+        }
+        
+        return $decoded;
     }
     
     public function destroy($name){
