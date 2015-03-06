@@ -113,7 +113,7 @@ class Twig{
     }
     
     public function display($name,$context=array()){
-        $this->append('debugQueries', \Kubexia\Database\Doctrine\Debugger::getInstance()->queries());
+        $this->append('debugQueries', \Kubexia\Database\PDO\Debug::getQueries());
         return $this->env->display($name, array_merge(static::$vars,$context));
     }
     
