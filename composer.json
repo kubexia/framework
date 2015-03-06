@@ -11,11 +11,7 @@
     "require": {
         "php": ">=5.3.0",
         "slim/slim": "2.*",
-        "phpmailer/phpmailer": "~5.2",
-        "doctrine/orm": "~2.3.6",
-        "doctrine/dbal": "~2.3.5",
-        "doctrine/migrations": "dev-master",
-        "symfony/yaml": "~2.6"
+        "phpmailer/phpmailer": "~5.2"
     },
     "autoload": {
         "psr-4": {
